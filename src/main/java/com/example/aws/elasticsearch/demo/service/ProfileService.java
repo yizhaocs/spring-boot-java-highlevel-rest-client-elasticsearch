@@ -4,6 +4,9 @@ import com.example.aws.elasticsearch.demo.document.ProfileDocument;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
@@ -27,6 +30,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.example.aws.elasticsearch.demo.util.Constant.INDEX;
@@ -90,6 +94,41 @@ public class ProfileService {
                     .name();
 
     }
+
+    public String bulkUpdateProfile(List<ProfileDocument> documents) throws Exception {
+        List<ProfileDocument> documentsFake = new ArrayList<>();
+        if(documents == null){
+            for(int i = 0; i < 10; i++){
+                ProfileDocument myProfileDocument = new ProfileDocument();
+                String id = UUID.randomUUID().toString();
+                myProfileDocument.setId(id);
+                myProfileDocument.setFirstName(String.format("firstName %s", id));
+                myProfileDocument.setLastName(String.format("lastName %s", id));
+            }
+        }
+
+        BulkRequest bulkRequest = new BulkRequest();
+
+        documentsFake.forEach(profileDocument -> {
+            IndexRequest indexRequest = new IndexRequest(INDEX,TYPE,profileDocument.getId()).
+                    source(objectMapper.convertValue(profileDocument, Map.class));
+
+            bulkRequest.add(indexRequest);
+        });
+
+        BulkResponse bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+        if(bulkResponse.hasFailures()) {
+            for (BulkItemResponse bulkItemResponse : bulkResponse) {
+                if (bulkItemResponse.isFailed()) {
+                    BulkItemResponse.Failure failure = bulkItemResponse.getFailure();
+                    System.out.println("Error "+failure.toString());
+                }
+            }
+        }
+
+        return null;
+    }
+
 
     public List<ProfileDocument> findAll() throws Exception {
 
