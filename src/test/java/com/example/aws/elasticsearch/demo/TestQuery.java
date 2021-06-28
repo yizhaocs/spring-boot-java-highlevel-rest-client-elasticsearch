@@ -83,6 +83,7 @@ import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.term.TermSuggestion;
 import org.elasticsearch.search.suggest.term.TermSuggestionBuilder;
 import org.junit.Test;
+import org.springframework.core.annotation.Order;
 
 
 /*
@@ -95,6 +96,7 @@ public class TestQuery {
     private RequestOptions REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
 
     @Test
+    @Order(1)
     public void matchQuery() throws IOException{
         SearchRequest searchRequest = new SearchRequest("books");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();    // 查询的参数都可以放入 SearchSourceBuilder 中
@@ -258,6 +260,7 @@ public class TestQuery {
      * 指标聚合
      */
     @Test
+    @Order(2)
     public void aggregation1() throws IOException{
         SearchRequest searchRequest = new SearchRequest("books");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -350,6 +353,7 @@ public class TestQuery {
      * 桶聚合
      */
     @Test
+    @Order(3)
     public void aggregation2() throws IOException{
         SearchRequest searchRequest = new SearchRequest("books");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -477,6 +481,7 @@ public class TestQuery {
      * 集群管理
      */
     @Test
+    @Order(4)
     public void clusterHealth() throws IOException{
         ClusterHealthRequest clusterHealthRequest = new ClusterHealthRequest();
         clusterHealthRequest.indices("books", "geo");
@@ -496,6 +501,7 @@ public class TestQuery {
         System.out.println("cluster active shards: " + healthResp.getActiveShards());
     }
     @Test
+    @Order(5)
     public void clusterGetSetting() throws IOException{
         ClusterGetSettingsRequest clusterGetSettingsRequest = new ClusterGetSettingsRequest();
         clusterGetSettingsRequest.includeDefaults(true); // true 返回默认设置

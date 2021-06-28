@@ -42,6 +42,7 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.core.annotation.Order;
 
 /*
     RFE:
@@ -56,6 +57,7 @@ public class TestDocument {
      * 索引文档
      */
     @Test
+    @Order(1)
     public void createDoc() throws IOException {
         IndexRequest request = new IndexRequest("twitter");
         // json 字符串
@@ -110,6 +112,7 @@ public class TestDocument {
      * 获取文档
      */
     @Test
+    @Order(2)
     public void getDoc() throws IOException{
         GetRequest getRequest = new GetRequest("twitter", "1");
         GetResponse getResponse = restClient.get(getRequest, REQUEST_OPTIONS_DEFAULT);
@@ -121,6 +124,7 @@ public class TestDocument {
      * 删除文档
      */
     @Test
+    @Order(3)
     public void delDoc() throws IOException{
         DeleteRequest request = new DeleteRequest("twitter", "1");
         DeleteResponse resp = restClient.delete(request, REQUEST_OPTIONS_DEFAULT);
@@ -134,6 +138,7 @@ public class TestDocument {
      * 修改文档
      */
     @Test
+    @Order(4)
     public void updateDoc() throws IOException{
         UpdateRequest request = new UpdateRequest("twitter", "1");
         // 脚本方式
@@ -154,6 +159,7 @@ public class TestDocument {
      * 查询删除
      */
     @Test
+    @Order(5)
     public void deleteByQuery() throws IOException{
         DeleteByQueryRequest request = new DeleteByQueryRequest("twitter");
         request.setQuery(new TermQueryBuilder("_id", 5));
@@ -165,6 +171,7 @@ public class TestDocument {
      * 批量获取
      */
     @Test
+    @Order(6)
     public void multiGet() throws IOException{
         MultiGetRequest request = new MultiGetRequest();
         request.add(new MultiGetRequest.Item("twitter", "3"));
@@ -185,6 +192,7 @@ public class TestDocument {
      * 批量操作
      */
     @Test
+    @Order(7)
     public void bulk() throws IOException{
         BulkRequest request = new BulkRequest();
         request.add(new IndexRequest("twitter").id("6").source(XContentType.JSON, "user", "bulk", "message", "add by bulk id 6", "postDate", new Date()));
@@ -222,6 +230,7 @@ public class TestDocument {
      * bulk 批量操作支持在操作完成之前和之后进行相应的操作
      */
     @Test
+    @Order(8)
     public void bulkProcessor() throws InterruptedException{
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 

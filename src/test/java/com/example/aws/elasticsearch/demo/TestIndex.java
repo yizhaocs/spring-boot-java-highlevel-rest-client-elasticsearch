@@ -31,6 +31,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.Test;
+import org.springframework.core.annotation.Order;
 
 /*
     RFE:
@@ -45,6 +46,7 @@ public class TestIndex {
      * 判断索引是否存在
      */
     @Test
+    @Order(1)
     public void existsIndex() throws IOException{
         IndicesClient indices = restClient.indices();
         GetIndexRequest request = new GetIndexRequest("books");
@@ -56,6 +58,7 @@ public class TestIndex {
      * 异步方式判断索引是否存在
      */
     @Test
+    @Order(2)
     public void existsIndexAsync(){
         IndicesClient indices = restClient.indices();
         GetIndexRequest request = new GetIndexRequest("books");
@@ -82,6 +85,7 @@ public class TestIndex {
      * 创建索引，也支持异步
      */
     @Test
+    @Order(3)
     public void createIndex() throws IOException{
         CreateIndexRequest request = new CreateIndexRequest("twitter");
         // 设置settings
@@ -136,6 +140,7 @@ public class TestIndex {
      * 删除索引，也支持异步
      */
     @Test
+    @Order(4)
     public void deleteIndex() throws IOException{
         DeleteIndexRequest request = new DeleteIndexRequest("twitter");
         AcknowledgedResponse deleteResp = restClient.indices().delete(request, REQUEST_OPTIONS_DEFAULT);
@@ -149,6 +154,7 @@ public class TestIndex {
      *//*
 
     @Test
+    @Order(5)
     public void getIndexMapping() throws IOException{
         GetMappingsRequest request = new GetMappingsRequest();
         request.indices("twitter");
@@ -166,6 +172,7 @@ public class TestIndex {
      * 刷新索引
      */
     @Test
+    @Order(6)
     public void refreshIndex() throws IOException{
         RefreshRequest request = new RefreshRequest("twitter");
         RefreshResponse refreshResp = restClient.indices().refresh(request, REQUEST_OPTIONS_DEFAULT);
@@ -178,6 +185,7 @@ public class TestIndex {
      * 关闭索引，打开索引
      *//*
     @Test
+    @Order(7)
     public void closeAndOpenIndex() throws IOException{
         CloseIndexRequest closeReq = new CloseIndexRequest("twitter");
         AcknowledgedResponse close = restClient.indices().close(closeReq, REQUEST_OPTIONS_DEFAULT);
@@ -198,6 +206,7 @@ public class TestIndex {
      *//*
 
     @Test
+    @Order(8)
     public void aliasIndex() throws IOException{
         // 根据别名获取索引
         GetAliasesRequest getAliasesRequest = new GetAliasesRequest("tw_alias");
