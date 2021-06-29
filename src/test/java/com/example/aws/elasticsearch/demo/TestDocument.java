@@ -289,9 +289,9 @@ public class TestDocument {
         bulkProcessor.add(three);
         bulkProcessor.add(four);
 
-        boolean awaitClose = bulkProcessor.awaitClose(30L, TimeUnit.SECONDS);
+        boolean isBulkProcessorSucceed = bulkProcessor.awaitClose(60, TimeUnit.SECONDS);
         // true 所有批量请求都已完成；false 所有批量请求完成之前等待的时间已过
-        System.out.println(awaitClose);
+        System.out.println(String.format("isBulkProcessorSucceed: %s", isBulkProcessorSucceed) );
     }
 
 }
