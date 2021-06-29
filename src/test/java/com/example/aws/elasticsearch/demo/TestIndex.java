@@ -45,11 +45,24 @@ public class TestIndex {
     private RestHighLevelClient restClient = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
     private RequestOptions REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
 
+
+
+    /**
+     * 删除索引，也支持异步
+     */
+    @Test
+    @Order(1)
+    public void deleteIndex() throws IOException{
+        DeleteIndexRequest request = new DeleteIndexRequest("twitter");
+        AcknowledgedResponse deleteResp = restClient.indices().delete(request, REQUEST_OPTIONS_DEFAULT);
+        System.out.println(deleteResp.isAcknowledged());
+    }
+
     /**
      * 判断索引是否存在
      */
     @Test
-    @Order(1)
+    @Order(2)
     public void existsIndex() throws IOException{
         IndicesClient indices = restClient.indices();
         GetIndexRequest request = new GetIndexRequest("books");
@@ -61,7 +74,7 @@ public class TestIndex {
      * 异步方式判断索引是否存在
      */
     @Test
-    @Order(2)
+    @Order(3)
     public void existsIndexAsync(){
         IndicesClient indices = restClient.indices();
         GetIndexRequest request = new GetIndexRequest("books");
@@ -88,7 +101,7 @@ public class TestIndex {
      * 创建索引，也支持异步
      */
     @Test
-    @Order(3)
+    @Order(4)
     public void createIndex() throws IOException{
         CreateIndexRequest request = new CreateIndexRequest("twitter");
         // 设置settings
@@ -139,16 +152,6 @@ public class TestIndex {
         System.out.println(createResp.index());
     }
 
-    /**
-     * 删除索引，也支持异步
-     */
-    @Test
-    @Order(4)
-    public void deleteIndex() throws IOException{
-        DeleteIndexRequest request = new DeleteIndexRequest("twitter");
-        AcknowledgedResponse deleteResp = restClient.indices().delete(request, REQUEST_OPTIONS_DEFAULT);
-        System.out.println(deleteResp.isAcknowledged());
-    }
 /*
 
     */
