@@ -1,6 +1,7 @@
 package ElasticsearchJavaApiTest;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import org.apache.http.HttpHost;
@@ -33,6 +34,7 @@ import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.SimpleQueryStringBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.DocValueFormat.DateTime;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
@@ -207,8 +209,16 @@ public class TestQuery {
         searchSourceBuilder.sort(new FieldSortBuilder("id").order(SortOrder.ASC)); // 支持排序，按id 升序排序
         searchRequest.source(searchSourceBuilder);
         SearchResponse allSearch = restClient.search(searchRequest, REQUEST_OPTIONS_DEFAULT);
-        allSearch.getHits().forEach((hit) -> {
-            System.out.println(hit.getScore() + " - " + hit.getSourceAsString());
+        SearchHits hits = allSearch.getHits();
+        hits.forEach((hit) -> {
+            /*
+            hit.getScore(): 1.0
+            hit.getSourceAsString(): {"id":"1","title":"java编程思想","language":"java","author":"Bruce Eckel","price":70.2,"publish time":"2007-10-01","description":"Java学习必读经典,殿堂级著作!赢得了全球程序员的广泛赞誉。"}
+            hit.getSourceAsMap(): {author=Bruce Eckel, price=70.2, description=Java学习必读经典,殿堂级著作!赢得了全球程序员的广泛赞誉。, language=java, id=1, title=java编程思想, publish time=2007-10-01}
+             */
+            System.out.println(String.format("hit.getScore(): %s", hit.getScore()) );
+            System.out.println(String.format("hit.getSourceAsString(): %s", hit.getSourceAsString()));
+            System.out.println(String.format("hit.getSourceAsMap(): %s", hit.getSourceAsMap()));
         });
         System.out.println("--------------------------------");
 
