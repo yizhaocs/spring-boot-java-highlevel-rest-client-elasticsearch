@@ -238,19 +238,22 @@ public class TestDocument {
             public void beforeBulk(long executionId, BulkRequest request) {
                 // 批量操作提交之前执行
                 Gson gson = new Gson();
-                System.out.println("before: " + executionId + " - " + gson.toJson(request.requests()));
+                System.out.println("bulkProcessor.beforeBulk: " + executionId + " - " + request.requests());
             }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
                 // 批量操作提交之后执行
                 System.out.println("after: " + executionId + " - " + request.numberOfActions());
+                for(BulkItemResponse bir: response){
+                    System.out.println(String.format("bulkProcessor.afterBulk: bir.isFailed() = %s", bir.isFailed()));
+                }
             }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                 // 批量操作异常时执行
-                System.out.println("failure: " + executionId + " - " + request.toString());
+                System.out.println("bulkProcessor.afterBulk: failure = " + executionId + " - " + request.toString());
             }
         };
         BulkProcessor bulkProcessor = BulkProcessor.builder(
