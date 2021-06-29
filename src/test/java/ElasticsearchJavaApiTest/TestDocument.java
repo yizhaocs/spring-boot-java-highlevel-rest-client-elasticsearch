@@ -206,12 +206,12 @@ public class TestDocument {
     @Order(7)
     public void bulk() throws IOException{
         BulkRequest request = new BulkRequest();
+
         /**
          * positive case
          */
         request.add(new IndexRequest("twitter").id("6").source(XContentType.JSON, "user", "bulk", "message", "add by bulk id 6", "postDate", new Date()));
-        request.add(new IndexRequest("twitter").id("7").source("user", "bulk", "message", "add by bulk id 7", "postDate", new Date()));
-        request.add(new IndexRequest("test").id("bulk").source("foo", "hello bulk"));
+
         /**
          * failure case
          */
@@ -226,14 +226,25 @@ public class TestDocument {
         }
         request.add(four);
 
+        /**
+         * positive case
+         */
+        request.add(new IndexRequest("twitter").id("7").source("user", "bulk", "message", "add by bulk id 7", "postDate", new Date()));
+        request.add(new IndexRequest("test").id("bulk").source("foo", "hello bulk"));
+
+
         BulkResponse bulkResponse = restClient.bulk(request, REQUEST_OPTIONS_DEFAULT);
         for(BulkItemResponse response: bulkResponse){
             boolean isFailed = response.isFailed();
             if(isFailed) {
                 /*
-                    failed response.getId(): 1, failed response.getFailureMessage(): [twitter/dwVlV8pBRfWs_xD0qFAQJQ][[twitter][2]] ElasticsearchException[Elasticsearch exception [type=document_missing_exception, reason=[_doc][1]: document missing]]
+                    failed at 第1个input
                  */
-                System.out.println(String.format("failed response.getId(): %s, failed response.getFailureMessage(): %s", response.getId(), response.getFailureMessage()));
+                System.out.println(String.format("failed at 第%s个input", response.getItemId()));
+                /*
+                    failed response.getIndex(): twitter, failed response.getId(): 1, failed response.getFailureMessage(): [twitter/dwVlV8pBRfWs_xD0qFAQJQ][[twitter][2]] ElasticsearchException[Elasticsearch exception [type=document_missing_exception, reason=[_doc][1]: document missing]]
+                 */
+                System.out.println(String.format("failed response.getIndex(): %s, failed response.getId(): %s, failed response.getFailureMessage(): %s", response.getIndex(), response.getId(), response.getFailureMessage()));
                 continue;
             }
 
