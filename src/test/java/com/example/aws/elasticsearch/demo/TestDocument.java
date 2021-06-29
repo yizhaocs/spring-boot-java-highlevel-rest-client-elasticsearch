@@ -132,7 +132,9 @@ public class TestDocument {
     @Order(3)
     public void updateDoc() throws IOException{
         UpdateRequest request = new UpdateRequest("twitter", "1");
-        // 脚本方式
+        /**
+         * 脚本方式
+         */
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("count", 4);
         Script inline = new Script(ScriptType.INLINE, "painless", "ctx._source.count = params.count", parameters);
@@ -140,7 +142,9 @@ public class TestDocument {
         UpdateResponse update = restClient.update(request, REQUEST_OPTIONS_DEFAULT);
         System.out.println(update.getId() + " : " + update.getVersion());
 
-        // upsert 文档存在，则更新；文档不存在，则新增
+        /**
+         * upsert 文档存在，则更新；文档不存在，则新增
+         */
         UpdateRequest request2 = new UpdateRequest("twitter", "5").doc("updateTime", new Date(), "reason", "daily update").upsert("create", new Date());
         UpdateResponse update2 = restClient.update(request2, REQUEST_OPTIONS_DEFAULT);
         System.out.println(update2.getId() + " : " + update2.getVersion());
