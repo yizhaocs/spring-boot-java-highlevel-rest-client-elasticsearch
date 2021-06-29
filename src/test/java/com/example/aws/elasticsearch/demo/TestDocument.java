@@ -245,9 +245,7 @@ public class TestDocument {
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
                 // 批量操作提交之后执行
                 System.out.println("after: " + executionId + " - " + request.numberOfActions());
-                for(BulkItemResponse bir: response){
-                    System.out.println(String.format("bulkProcessor.afterBulk: bir.isFailed() = %s", bir.isFailed()));
-                }
+                System.out.println(String.format("bulkProcessor.afterBulk: response.hasFailures() = %s", response.hasFailures()));
             }
 
             @Override
@@ -266,12 +264,30 @@ public class TestDocument {
                 .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))  // 设置回滚策略，等待时间100ms，重试次数3次
                 .build();
 
+        /**
+         * positive case
+         */
         IndexRequest one = new IndexRequest("twitter").id("9").source(XContentType.JSON, "user", "bulk", "message", "add by bulkProcessor id 9", "postDate", new Date());
         IndexRequest two = new IndexRequest("twitter").id("8").source("user", "bulk", "message", "add by bulkProcessor id 8", "postDate", new Date());
         IndexRequest three = new IndexRequest("test").id("bulkProcessor").source("foo", "hello bulkProcessor");
+
+        /**
+         * failure case
+         */
+        UpdateRequest four = null;
+        {
+            four = new UpdateRequest("twitter", "1");
+            // 脚本方式
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("count", 4);
+            Script inline = new Script(ScriptType.INLINE, "painless", "ctx._source.count = params.count", parameters);
+            four.script(inline);
+        }
+
         bulkProcessor.add(one);
         bulkProcessor.add(two);
         bulkProcessor.add(three);
+        bulkProcessor.add(four);
 
         boolean awaitClose = bulkProcessor.awaitClose(30L, TimeUnit.SECONDS);
         // true 所有批量请求都已完成；false 所有批量请求完成之前等待的时间已过
