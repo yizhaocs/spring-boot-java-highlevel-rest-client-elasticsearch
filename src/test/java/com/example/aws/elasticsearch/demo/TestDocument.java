@@ -225,8 +225,11 @@ public class TestDocument {
         BulkResponse bulkResponse = restClient.bulk(request, REQUEST_OPTIONS_DEFAULT);
         for(BulkItemResponse response: bulkResponse){
             boolean isFailed = response.isFailed();
-            System.out.println(String.format("response.isFailed(): %s", isFailed));
-            if(isFailed) continue;
+            if(isFailed) {
+                System.out.println(String.format("failed response.getId(): %s", response.getId()));
+                System.out.println(String.format("failed response.getFailureMessage(): %s", response.getFailureMessage()));
+                continue;
+            }
 
             DocWriteResponse resp = response.getResponse();
 
