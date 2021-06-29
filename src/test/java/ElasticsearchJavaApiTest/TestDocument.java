@@ -231,11 +231,9 @@ public class TestDocument {
             boolean isFailed = response.isFailed();
             if(isFailed) {
                 /*
-                failed response.getId(): 1
-                failed response.getFailureMessage(): [twitter/dwVlV8pBRfWs_xD0qFAQJQ][[twitter][2]] ElasticsearchException[Elasticsearch exception [type=document_missing_exception, reason=[_doc][1]: document missing]]
+                    failed response.getId(): 1, failed response.getFailureMessage(): [twitter/dwVlV8pBRfWs_xD0qFAQJQ][[twitter][2]] ElasticsearchException[Elasticsearch exception [type=document_missing_exception, reason=[_doc][1]: document missing]]
                  */
-                System.out.println(String.format("failed response.getId(): %s", response.getId()));
-                System.out.println(String.format("failed response.getFailureMessage(): %s", response.getFailureMessage()));
+                System.out.println(String.format("failed response.getId(): %s, failed response.getFailureMessage(): %s", response.getId(), response.getFailureMessage()));
                 continue;
             }
 
