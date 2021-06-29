@@ -195,12 +195,32 @@ public class TestDocument {
     @Order(7)
     public void bulk() throws IOException{
         BulkRequest request = new BulkRequest();
+        /**
+         * positive case
+         */
         request.add(new IndexRequest("twitter").id("6").source(XContentType.JSON, "user", "bulk", "message", "add by bulk id 6", "postDate", new Date()));
         request.add(new IndexRequest("twitter").id("7").source("user", "bulk", "message", "add by bulk id 7", "postDate", new Date()));
         request.add(new IndexRequest("test").id("bulk").source("foo", "hello bulk"));
-        BulkResponse bulk = restClient.bulk(request, REQUEST_OPTIONS_DEFAULT);
-        Gson gson = new Gson();
-        for(BulkItemResponse response: bulk){
+        /**
+         * failure case
+         */
+        UpdateRequest four = null;
+        {
+            four = new UpdateRequest("twitter", "1");
+            // 脚本方式
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("count", 4);
+            Script inline = new Script(ScriptType.INLINE, "painless", "ctx._source.count = params.count", parameters);
+            four.script(inline);
+        }
+        request.add(four);
+
+        BulkResponse bulkResponse = restClient.bulk(request, REQUEST_OPTIONS_DEFAULT);
+        for(BulkItemResponse response: bulkResponse){
+            boolean isFailed = response.isFailed();
+            System.out.println(String.format("response.isFailed(): %s", isFailed));
+            if(isFailed) continue;
+
             DocWriteResponse resp = response.getResponse();
 
             switch(response.getOpType()){
@@ -209,17 +229,17 @@ public class TestDocument {
                 case CREATE:
                     System.out.println(resp.getIndex() + " - " + resp.getId() + " - CREATE");
                     IndexResponse indexResponse = (IndexResponse) resp;
-                    System.out.println(gson.toJson(indexResponse.getResult()));
+                    System.out.println(String.format("indexResponse.getResult(): %s", indexResponse.getResult()));
                     break;
                 case UPDATE:
                     System.out.println(resp.getIndex() + " - " + resp.getId() + " - UPDATE");
                     UpdateResponse updateResponse = (UpdateResponse) resp;
-                    System.out.println(gson.toJson(updateResponse.getResult()));
+                    System.out.println(String.format("updateResponse.getResult(): %s", updateResponse.getResult()));
                     break;
                 case DELETE:
                     System.out.println(resp.getIndex() + " - " + resp.getId() + " - DELETE");
                     DeleteResponse deleteResponse = (DeleteResponse) resp;
-                    System.out.println(gson.toJson(deleteResponse.getResult()));
+                    System.out.println(String.format("deleteResponse.getResult(): %s", deleteResponse.getResult()));
                     break;
             }
             System.out.println("----------------------------------");
