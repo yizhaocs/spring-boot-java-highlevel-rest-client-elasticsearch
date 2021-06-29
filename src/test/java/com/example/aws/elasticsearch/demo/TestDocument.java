@@ -40,19 +40,24 @@ import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.core.annotation.Order;
+import org.junit.jupiter.api.*;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /*
     RFE:
     https://github.com/windfish/essay/blob/a259ee0f05dbb33ecba57c8b71c57eee41302f77/src/com/demon/lucene/book/chapter8/TestDocument.java
  */
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestDocument {
 
-    private RestHighLevelClient restClient = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
-    private RequestOptions REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
+    private static  RestHighLevelClient restClient = null;
+    private static RequestOptions REQUEST_OPTIONS_DEFAULT = null;
 
+    @BeforeAll
+    static void beforeAll() {
+        restClient = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
+        REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
+    }
     /**
      * 索引文档
      */
@@ -179,7 +184,7 @@ public class TestDocument {
         MultiGetResponse mget = restClient.mget(request, REQUEST_OPTIONS_DEFAULT);
         MultiGetItemResponse[] responses = mget.getResponses();
         for(MultiGetItemResponse resp: responses){
-            Assert.assertNull(resp.getFailure());
+            Assertions.assertNull(resp.getFailure());
             System.out.println(resp.getIndex() + " : " + resp.getId());
             GetResponse response = resp.getResponse();
             System.out.println(response.getVersion());
