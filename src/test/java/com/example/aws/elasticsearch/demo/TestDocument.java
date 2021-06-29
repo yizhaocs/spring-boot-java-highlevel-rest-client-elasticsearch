@@ -126,24 +126,10 @@ public class TestDocument {
     }
 
     /**
-     * 删除文档
-     */
-    @Test
-    @Order(3)
-    public void delDoc() throws IOException{
-        DeleteRequest request = new DeleteRequest("twitter", "1");
-        DeleteResponse resp = restClient.delete(request, REQUEST_OPTIONS_DEFAULT);
-        System.out.println(resp.getIndex());
-        System.out.println(resp.getId());
-        ReplicationResponse.ShardInfo shardInfo = resp.getShardInfo();
-        System.out.println(shardInfo.getTotal() + " - " + shardInfo.getSuccessful());
-    }
-
-    /**
      * 修改文档
      */
     @Test
-    @Order(4)
+    @Order(3)
     public void updateDoc() throws IOException{
         UpdateRequest request = new UpdateRequest("twitter", "1");
         // 脚本方式
@@ -159,6 +145,22 @@ public class TestDocument {
         UpdateResponse update2 = restClient.update(request2, REQUEST_OPTIONS_DEFAULT);
         System.out.println(update2.getId() + " : " + update2.getVersion());
     }
+
+    /**
+     * 删除文档
+     */
+    @Test
+    @Order(4)
+    public void delDoc() throws IOException{
+        DeleteRequest request = new DeleteRequest("twitter", "1");
+        DeleteResponse resp = restClient.delete(request, REQUEST_OPTIONS_DEFAULT);
+        System.out.println(resp.getIndex());
+        System.out.println(resp.getId());
+        ReplicationResponse.ShardInfo shardInfo = resp.getShardInfo();
+        System.out.println(shardInfo.getTotal() + " - " + shardInfo.getSuccessful());
+    }
+
+
 
     /**
      * 查询删除
@@ -184,7 +186,7 @@ public class TestDocument {
         MultiGetResponse mget = restClient.mget(request, REQUEST_OPTIONS_DEFAULT);
         MultiGetItemResponse[] responses = mget.getResponses();
         for(MultiGetItemResponse resp: responses){
-            Assertions.assertNull(resp.getFailure());
+            Assertions.assertFalse(resp.isFailed());
             System.out.println(resp.getIndex() + " : " + resp.getId());
             GetResponse response = resp.getResponse();
             System.out.println(response.getVersion());
