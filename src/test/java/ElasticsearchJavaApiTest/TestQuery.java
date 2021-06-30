@@ -619,44 +619,6 @@ public class TestQuery {
 //        }
     }
 
-    /**
-     * 集群管理
-     */
-    @Test
-    @Order(4)
-    public void clusterHealth() throws IOException{
-        ClusterHealthRequest clusterHealthRequest = new ClusterHealthRequest();
-        clusterHealthRequest.indices("books", "geo");
-        ClusterHealthResponse healthResp = restClient.cluster().health(clusterHealthRequest, REQUEST_OPTIONS_DEFAULT);
 
-        String clusterName = healthResp.getClusterName();
-        System.out.println("cluster name: " + clusterName);
-
-        ClusterHealthStatus clusterHealthStatus = healthResp.getStatus();
-        System.out.println("cluster status: " + clusterHealthStatus.toString());
-
-        boolean timedOut = healthResp.isTimedOut();
-        RestStatus restStatus = healthResp.status();
-        System.out.println("cluster timeout: " + timedOut + ", restStatus: " + restStatus.toString());
-
-        System.out.println("cluster nodes number: " + healthResp.getNumberOfNodes() + ", data nodes number: " + healthResp.getNumberOfDataNodes());
-        System.out.println("cluster active shards: " + healthResp.getActiveShards());
-    }
-    @Test
-    @Order(5)
-    public void clusterGetSetting() throws IOException{
-        ClusterGetSettingsRequest clusterGetSettingsRequest = new ClusterGetSettingsRequest();
-        clusterGetSettingsRequest.includeDefaults(true); // true 返回默认设置
-        ClusterGetSettingsResponse settingsResp = restClient.cluster().getSettings(clusterGetSettingsRequest, REQUEST_OPTIONS_DEFAULT);
-
-        Settings persistentSettings = settingsResp.getPersistentSettings();
-        Settings transientSettings = settingsResp.getTransientSettings();
-        Settings defaultSettings = settingsResp.getDefaultSettings();
-        String settingValue = settingsResp.getSetting("cluster.routing.allocation.enable");
-        System.out.println(persistentSettings.toString());
-        System.out.println(transientSettings.toString());
-        System.out.println(defaultSettings.toString());
-        System.out.println(settingValue);
-    }
 
 }
