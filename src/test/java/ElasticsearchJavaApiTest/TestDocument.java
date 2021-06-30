@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import com.google.gson.Gson;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.admin.indices.alias.Alias;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -23,12 +25,16 @@ import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.action.support.replication.ReplicationResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
@@ -62,6 +68,64 @@ public class TestDocument {
     static void beforeAll() throws IOException {
         restClient = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
+        deleteTwitterIndex();
+        createTwitterIndex();
+    }
+
+    public static void deleteTwitterIndex() throws IOException{
+        DeleteIndexRequest request = new DeleteIndexRequest("twitter");
+        AcknowledgedResponse deleteResp = restClient.indices().delete(request, REQUEST_OPTIONS_DEFAULT);
+        System.out.println(deleteResp.isAcknowledged());
+    }
+
+    private static void createTwitterIndex() throws IOException {
+        CreateIndexRequest request = new CreateIndexRequest("twitter");
+        // 设置settings
+        request.settings(Settings.builder()
+                .put("index.number_of_shards", 3)
+                .put("index.number_of_replicas", 2)
+        );
+
+        // 设置mapping
+        request.mapping(
+                "{\n" +
+                        "  \"properties\": {\n" +
+                        "    \"message\": {\n" +
+                        "      \"type\": \"keyword\"\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}", XContentType.JSON);
+        // 还支持map 方式
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", "keyword");
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("message", message);
+        Map<String, Object> mapping = new HashMap<>();
+        mapping.put("properties", properties);
+//        request.mapping(mapping);
+        // 还支持XContentBuilder
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            builder.startObject("properties");
+            {
+                builder.startObject("message");
+                {
+                    builder.field("type", "keyword");
+                }
+                builder.endObject();
+            }
+            builder.endObject();
+        }
+        builder.endObject();
+//        request.mapping(builder);
+
+        // 设置别名
+        request.alias(new Alias("tw_alias"));
+
+        CreateIndexResponse createResp = restClient.indices().create(request, REQUEST_OPTIONS_DEFAULT);
+        System.out.println(createResp.isAcknowledged());
+        System.out.println(createResp.index());
     }
     /**
      * 索引文档
@@ -118,6 +182,9 @@ public class TestDocument {
         System.out.println("index key-value, id:" + kvResp.getId() + " result:" + kvResp.getResult());
     }
 
+
+
+
     /**
      * 获取文档
      */
@@ -130,11 +197,32 @@ public class TestDocument {
         System.out.println(getResponse.getVersion());
     }
 
+
+    /**
+     * 批量获取
+     */
+    @Test
+    @Order(3)
+    public void multiGet() throws IOException{
+        MultiGetRequest request = new MultiGetRequest();
+        request.add(new MultiGetRequest.Item("twitter", "3"));
+        request.add("books", "2");
+        MultiGetResponse mget = restClient.mget(request, REQUEST_OPTIONS_DEFAULT);
+        MultiGetItemResponse[] responses = mget.getResponses();
+        for(MultiGetItemResponse resp: responses){
+            Assertions.assertFalse(resp.isFailed());
+            System.out.println(resp.getIndex() + " : " + resp.getId());
+            GetResponse response = resp.getResponse();
+            System.out.println(response.getVersion());
+            System.out.println(response.getSourceAsString());
+            System.out.println("-------------------");
+        }
+    }
     /**
      * 修改文档
      */
     @Test
-    @Order(3)
+    @Order(4)
     public void updateDoc() throws IOException{
         UpdateRequest request = new UpdateRequest("twitter", "1");
         /**
@@ -159,7 +247,7 @@ public class TestDocument {
      * 删除文档
      */
     @Test
-    @Order(4)
+    @Order(5)
     public void delDoc() throws IOException{
         DeleteRequest request = new DeleteRequest("twitter", "1");
         DeleteResponse resp = restClient.delete(request, REQUEST_OPTIONS_DEFAULT);
@@ -175,7 +263,7 @@ public class TestDocument {
      * 查询删除
      */
     @Test
-    @Order(5)
+    @Order(6)
     public void deleteByQuery() throws IOException{
         DeleteByQueryRequest request = new DeleteByQueryRequest("twitter");
         request.setQuery(new TermQueryBuilder("_id", 5));
@@ -183,26 +271,7 @@ public class TestDocument {
         System.out.println(deleteByQuery.getTotal() + " : " + deleteByQuery.getDeleted());
     }
 
-    /**
-     * 批量获取
-     */
-    @Test
-    @Order(6)
-    public void multiGet() throws IOException{
-        MultiGetRequest request = new MultiGetRequest();
-        request.add(new MultiGetRequest.Item("twitter", "3"));
-        request.add("books", "2");
-        MultiGetResponse mget = restClient.mget(request, REQUEST_OPTIONS_DEFAULT);
-        MultiGetItemResponse[] responses = mget.getResponses();
-        for(MultiGetItemResponse resp: responses){
-            Assertions.assertFalse(resp.isFailed());
-            System.out.println(resp.getIndex() + " : " + resp.getId());
-            GetResponse response = resp.getResponse();
-            System.out.println(response.getVersion());
-            System.out.println(response.getSourceAsString());
-            System.out.println("-------------------");
-        }
-    }
+
 
     /**
      * 批量操作
