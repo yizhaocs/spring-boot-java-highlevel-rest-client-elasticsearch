@@ -1,0 +1,51 @@
+# step 1: Make sure Docker Engine is allotted at least 4GiB of memory.
+# step 2: docker-compose up &
+# step 3: docker-compose down -v
+# rfe: https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html
+
+version: '3.8'
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
+    hostname: es01
+    container_name: es01
+    domainname:  es01
+    environment:
+      - node.name=es01
+      - cluster.name=elasticsearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - node.attr.box_type=hot
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/Users/yzhao/Documents/docker-volumn/elasticsearch/es1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - es-network
+
+
+  kib01:
+    image: docker.elastic.co/kibana/kibana:7.13.1
+    hostname: kib01
+    container_name: kib01
+    domainname: kib01
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://es01:9200
+      ELASTICSEARCH_HOSTS: '["http://es01:9200"]'
+    networks:
+      - es-network
+
+volumes:
+  data01:
+    driver: local
+
+networks:
+  es-network:
