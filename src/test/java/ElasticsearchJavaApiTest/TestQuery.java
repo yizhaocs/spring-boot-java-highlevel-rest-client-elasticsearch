@@ -97,99 +97,98 @@ import org.junit.jupiter.api.TestMethodOrder;
     https://github.com/windfish/essay/blob/a259ee0f05dbb33ecba57c8b71c57eee41302f77/src/com/demon/lucene/book/chapter6/books
  */
 
-/**
+/*
  *跑这个测试前，现在Kibana上创建books index，并且插入些数据：
- PUT books?include_type_name=true
- {
- "settings":{
- "number_of_replicas": 1,
- "number_of_shards": 3
- },
- "mappings": {
- "IT":{
- "properties":{
- "id":{
- "type":"long"
- },
- "title":{
- "type":"text"
- },
- "language":{
- "type":"keyword"
- },
- "author":{
- "type":"keyword"
- },
- "price":{
- "type":"double"
- },
- "publish time":{
- "type":"date",
- "format":"yyyy-mm-dd"
- },
- "description":{
- "type":"text"
- }
- }
- }
- }
- }
-
+    PUT books?include_type_name=true
+    {
+      "settings": {
+        "number_of_replicas": 1,
+        "number_of_shards": 3
+      },
+      "mappings": {
+        "IT": {
+          "properties": {
+            "id": {
+              "type": "long"
+            },
+            "title": {
+              "type": "text"
+            },
+            "language": {
+              "type": "keyword"
+            },
+            "author": {
+              "type": "keyword"
+            },
+            "price": {
+              "type": "double"
+            },
+            "publish time": {
+              "type": "date",
+              "format": "yyyy-mm-dd"
+            },
+            "description": {
+              "type": "text"
+            }
+          }
+        }
+      }
+    }
  POST /books/_doc
- {
- "id": "1",
- "title": "java编程思想",
- "language": "java",
- "author": "Bruce Eckel",
- "price": 70.2,
- "publish time": "2007-10-01",
- "description": "Java学习必读经典,殿堂级著作!赢得了全球程序员的广泛赞誉。"
- }
+{
+  "id": "1",
+  "title": "java编程思想",
+  "language": "java",
+  "author": "Bruce Eckel",
+  "price": 70.2,
+  "publish time": "2007-10-01",
+  "description": "Java学习必读经典,殿堂级著作!赢得了全球程序员的广泛赞誉。"
+}
 
- POST /books/_doc
- {
- "id": "2",
- "title": "Java程序性能优化",
- "language": "java",
- "author": "葛一鸣",
- "price": 46.5,
- "publish time": "2012-08-01",
- "description": "让你的java程序更快、更稳定。深入剖析软件设计层面、代码层面、JVM虚拟机层面的优化方法"
- }
+POST /books/_doc
+{
+  "id": "2",
+  "title": "Java程序性能优化",
+  "language": "java",
+  "author": "葛一鸣",
+  "price": 46.5,
+  "publish time": "2012-08-01",
+  "description": "让你的java程序更快、更稳定。深入剖析软件设计层面、代码层面、JVM虚拟机层面的优化方法"
+}
 
- POST /books/_doc
- {
- "id": "3",
- "title": "Python科学计算",
- "language": "python",
- "author": "张若愚",
- "price": 81.4,
- "publish time": "2016-05-01",
- "description": "零基础学python,光盘中作者独家整合开发 winPython运行环境,涵盖了 Python各个扩展库"
- }
+POST /books/_doc
+{
+  "id": "3",
+  "title": "Python科学计算",
+  "language": "python",
+  "author": "张若愚",
+  "price": 81.4,
+  "publish time": "2016-05-01",
+  "description": "零基础学python,光盘中作者独家整合开发 winPython运行环境,涵盖了 Python各个扩展库"
+}
 
 
- POST /books/_doc
- {
- "id": "4",
- "title": "Python基础教程",
- "language": "python",
- "author": "Helant",
- "price": 54.5,
- "publish time": "2014-03-01",
- "description": "经典的 Python入门教程,层次鲜明,结构严谨,内容翔实"
- }
+POST /books/_doc
+{
+  "id": "4",
+  "title": "Python基础教程",
+  "language": "python",
+  "author": "Helant",
+  "price": 54.5,
+  "publish time": "2014-03-01",
+  "description": "经典的 Python入门教程,层次鲜明,结构严谨,内容翔实"
+}
 
- POST /books/_doc
- {
- "id": "5",
- "title": "JavaScript高级程序设计",
- "language": "javascript",
- "author": "Nicholas C. Zakas ",
- "price": 66.4,
- "publish time": "2012-10-01",
- "description": "JavaScript技术经典名著"
- }
+POST /books/_doc
+{
+  "id": "5",
+  "title": "JavaScript高级程序设计",
+  "language": "javascript",
+  "author": "Nicholas C. Zakas ",
+  "price": 66.4,
+  "publish time": "2012-10-01",
+  "description": "JavaScript技术经典名著"
+}
 
  *
  */
