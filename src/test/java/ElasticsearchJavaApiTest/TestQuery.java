@@ -102,6 +102,8 @@ import org.junit.jupiter.api.TestMethodOrder;
  *跑这个测试前，现在Kibana上创建books index，并且插入些数据：
  *
  Kibana Query如下:
+    DELETE books
+
     PUT books?include_type_name=true
     {
       "settings": {
@@ -194,6 +196,27 @@ POST /books/_doc
 }
 
  *
+ */
+/*
+DELETE geo
+
+PUT geo?include_type_name=true
+{
+  "mappings": {
+    "city": {
+      "properties": {
+        "name":{
+          "type": "keyword"
+        },
+        "location": {
+          "type": "geo_point"
+        }
+      }
+    }
+  }
+}
+
+curl -H "Content-Type: application/json" -XPOST "http://localhost:9200/_bulk?pretty" --data-binary @/Users/yzhao/Documents/code/spring-boot-java-highlevel-rest-client-elasticsearch/src/test/resources/geo.json
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestQuery {
