@@ -198,8 +198,10 @@ public class TestDocument {
     public void getDoc() throws IOException{
         GetRequest getRequest = new GetRequest("twitter", "1");
         GetResponse getResponse = restClient.get(getRequest, REQUEST_OPTIONS_DEFAULT);
-        System.out.println(getResponse.getSourceAsString());
-        System.out.println(getResponse.getVersion());
+        Assertions.assertEquals("{\"user\":\"kimchy\",\"postDate\":\"2019-08-29\",\"message\":\"trying out Elasticsearch\"}", getResponse.getSourceAsString());
+        Assertions.assertEquals(1l, getResponse.getVersion());
+        System.out.println("getResponse.getSourceAsString():" + getResponse.getSourceAsString());
+        System.out.println("getResponse.getVersion():" + getResponse.getVersion());
     }
 
 
