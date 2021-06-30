@@ -127,6 +127,7 @@ public class TestDocument {
     @Test
     @Order(1)
     public void createDoc() throws IOException {
+        System.out.println("createDoc started");
         IndexRequest request = new IndexRequest("twitter");
         // json 字符串
         String jsonString = "{" +
@@ -196,6 +197,7 @@ public class TestDocument {
     @Test
     @Order(2)
     public void getDoc() throws IOException{
+        System.out.println("getDoc started");
         GetRequest getRequest = new GetRequest("twitter", "1");
         GetResponse getResponse = restClient.get(getRequest, REQUEST_OPTIONS_DEFAULT);
         Assertions.assertEquals("{\"user\":\"kimchy\",\"postDate\":\"2019-08-29\",\"message\":\"trying out Elasticsearch\"}", getResponse.getSourceAsString());
@@ -211,11 +213,21 @@ public class TestDocument {
     @Test
     @Order(3)
     public void multiGet() throws IOException{
+        System.out.println("multiGet started");
         MultiGetRequest request = new MultiGetRequest();
         request.add(new MultiGetRequest.Item("twitter", "3"));
         request.add("books", "2");
         MultiGetResponse mget = restClient.mget(request, REQUEST_OPTIONS_DEFAULT);
         MultiGetItemResponse[] responses = mget.getResponses();
+        /*
+        twitter : 3
+        1
+        {"user":"xcontent","postDate":"2019-08-29","message":"index xcontent ES"}
+        -------------------
+        books : 2
+        -1
+        null
+         */
         for(MultiGetItemResponse resp: responses){
             Assertions.assertFalse(resp.isFailed());
             System.out.println(resp.getIndex() + " : " + resp.getId());
@@ -231,6 +243,7 @@ public class TestDocument {
     @Test
     @Order(4)
     public void updateDoc() throws IOException{
+        System.out.println("updateDoc started");
         UpdateRequest request = new UpdateRequest("twitter", "1");
         /**
          * 脚本方式
@@ -240,6 +253,8 @@ public class TestDocument {
         Script inline = new Script(ScriptType.INLINE, "painless", "ctx._source.count = params.count", parameters);
         request.script(inline);
         UpdateResponse update = restClient.update(request, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals("1", update.getId());
+        Assertions.assertEquals(2l, update.getVersion());
         System.out.println(update.getId() + " : " + update.getVersion());
 
         /**
@@ -247,6 +262,8 @@ public class TestDocument {
          */
         UpdateRequest request2 = new UpdateRequest("twitter", "5").doc("updateTime", new Date(), "reason", "daily update").upsert("create", new Date());
         UpdateResponse update2 = restClient.update(request2, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals("5", update2.getId());
+        Assertions.assertEquals(1l, update2.getVersion());
         System.out.println(update2.getId() + " : " + update2.getVersion());
     }
 
@@ -256,11 +273,16 @@ public class TestDocument {
     @Test
     @Order(5)
     public void delDoc() throws IOException{
+        System.out.println("delDoc started");
         DeleteRequest request = new DeleteRequest("twitter", "1");
         DeleteResponse resp = restClient.delete(request, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals("twitter", resp.getIndex());
+        Assertions.assertEquals("1", resp.getId());
         System.out.println(resp.getIndex());
         System.out.println(resp.getId());
         ReplicationResponse.ShardInfo shardInfo = resp.getShardInfo();
+        Assertions.assertEquals(3, shardInfo.getTotal());
+        Assertions.assertEquals(1, shardInfo.getSuccessful());
         System.out.println(shardInfo.getTotal() + " - " + shardInfo.getSuccessful());
     }
 
@@ -272,9 +294,12 @@ public class TestDocument {
     @Test
     @Order(6)
     public void deleteByQuery() throws IOException{
+        System.out.println("deleteByQuery started");
         DeleteByQueryRequest request = new DeleteByQueryRequest("twitter");
         request.setQuery(new TermQueryBuilder("_id", 5));
         BulkByScrollResponse deleteByQuery = restClient.deleteByQuery(request, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals(0l, deleteByQuery.getTotal());
+        Assertions.assertEquals(0l, deleteByQuery.getDeleted());
         System.out.println(deleteByQuery.getTotal() + " : " + deleteByQuery.getDeleted());
     }
 
@@ -286,6 +311,7 @@ public class TestDocument {
     @Test
     @Order(7)
     public void bulk() throws IOException{
+        System.out.println("bulk started");
         BulkRequest request = new BulkRequest();
 
         /**
@@ -360,6 +386,7 @@ public class TestDocument {
     @Test
     @Order(8)
     public void bulkProcessor() throws InterruptedException{
+        System.out.println("bulkProcessor started");
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 
             @Override
