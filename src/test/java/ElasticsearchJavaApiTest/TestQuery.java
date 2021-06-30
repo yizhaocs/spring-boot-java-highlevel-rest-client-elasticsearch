@@ -99,6 +99,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 /*
  *跑这个测试前，现在Kibana上创建books index，并且插入些数据：
+ *
+ curl -XDELETE http://localhost:9200/books/
+ curl -H "Content-Type: application/json" -XPOST "http://localhost:9200/_bulk?pretty" --data-binary @/Users/yzhao/Documents/code/spring-boot-java-highlevel-rest-client-elasticsearch/src/test/resources/books.json
+
+ Kibana Query如下:
     PUT books?include_type_name=true
     {
       "settings": {

@@ -39,6 +39,12 @@ import org.junit.jupiter.api.TestMethodOrder;
     RFE:
     https://github.com/windfish/essay/blob/a259ee0f05dbb33ecba57c8b71c57eee41302f77/src/com/demon/lucene/book/chapter8/TestIndex.java
  */
+/*
+ *跑这个测试前，现在Kibana上创建books index，并且插入些数据：
+ *
+ curl -XDELETE http://localhost:9200/books/
+ curl -H "Content-Type: application/json" -XPOST "http://localhost:9200/_bulk?pretty" --data-binary @/Users/yzhao/Documents/code/spring-boot-java-highlevel-rest-client-elasticsearch/src/test/resources/books.json
+ */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestIndex {
 

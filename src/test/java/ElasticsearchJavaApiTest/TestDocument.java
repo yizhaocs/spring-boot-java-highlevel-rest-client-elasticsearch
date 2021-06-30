@@ -41,11 +41,16 @@ import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.junit.jupiter.api.*;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /*
     RFE:
     https://github.com/windfish/essay/blob/a259ee0f05dbb33ecba57c8b71c57eee41302f77/src/com/demon/lucene/book/chapter8/TestDocument.java
+ */
+/*
+ *跑这个测试前，现在Kibana上创建books index，并且插入些数据：
+ *
+ curl -XDELETE http://localhost:9200/books/
+ curl -H "Content-Type: application/json" -XPOST "http://localhost:9200/_bulk?pretty" --data-binary @/Users/yzhao/Documents/code/spring-boot-java-highlevel-rest-client-elasticsearch/src/test/resources/books.json
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestDocument {
@@ -54,7 +59,7 @@ public class TestDocument {
     private static RequestOptions REQUEST_OPTIONS_DEFAULT = null;
 
     @BeforeAll
-    static void beforeAll() {
+    static void beforeAll() throws IOException {
         restClient = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
     }
