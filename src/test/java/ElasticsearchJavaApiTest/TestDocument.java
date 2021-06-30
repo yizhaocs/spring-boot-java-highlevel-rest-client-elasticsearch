@@ -136,6 +136,8 @@ public class TestDocument {
                 "}";
         request.id("1").source(jsonString, XContentType.JSON);
         IndexResponse jsonResp = restClient.index(request, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals("twitter", jsonResp.getIndex());
+        Assertions.assertEquals("1", jsonResp.getId());
         System.out.println("index:" + jsonResp.getIndex());
         System.out.println("id: " + jsonResp.getId());
         if(jsonResp.getResult() == DocWriteResponse.Result.CREATED){
@@ -146,6 +148,8 @@ public class TestDocument {
             System.out.println("doc UPDATED");
         }
         ReplicationResponse.ShardInfo shardInfo = jsonResp.getShardInfo();
+        Assertions.assertEquals(3, shardInfo.getTotal());
+        Assertions.assertEquals(1, shardInfo.getSuccessful());
         System.out.println("total shard: " + shardInfo.getTotal() + " success shard: " + shardInfo.getSuccessful());
 
         // map
@@ -155,6 +159,9 @@ public class TestDocument {
         jsonMap.put("message", "index map ES");
         request.id("2").source(jsonMap);
         IndexResponse mapResp = restClient.index(request, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals("2", mapResp.getId());
+        Assertions.assertEquals("CREATED", mapResp.getResult().toString());
+
         System.out.println("index map, id:" + mapResp.getId() + " result:" + mapResp.getResult());
 
         // XContent
@@ -168,11 +175,15 @@ public class TestDocument {
         builder.endObject();
         request.id("3").source(builder);
         IndexResponse xcontentResp = restClient.index(request, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals("3", xcontentResp.getId());
+        Assertions.assertEquals("CREATED", xcontentResp.getResult().toString());
         System.out.println("index xcontent, id:" + xcontentResp.getId() + " result:" + xcontentResp.getResult());
 
         // key-value
         request.id("4").source("user", "key-value", "postDate", "2019-08-29", "message", "index key-value ES");
         IndexResponse kvResp = restClient.index(request, REQUEST_OPTIONS_DEFAULT);
+        Assertions.assertEquals("4", kvResp.getId());
+        Assertions.assertEquals("CREATED", kvResp.getResult().toString());
         System.out.println("index key-value, id:" + kvResp.getId() + " result:" + kvResp.getResult());
     }
 
