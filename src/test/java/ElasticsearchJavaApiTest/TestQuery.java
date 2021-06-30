@@ -84,6 +84,7 @@ import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.term.TermSuggestion;
 import org.elasticsearch.search.suggest.term.TermSuggestionBuilder;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -200,9 +201,14 @@ POST /books/_doc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestQuery {
 
-    private RestHighLevelClient restClient = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
-    private RequestOptions REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
+    private static  RestHighLevelClient restClient = null;
+    private static RequestOptions REQUEST_OPTIONS_DEFAULT = null;
 
+    @BeforeAll
+    static void beforeAll() throws IOException {
+        restClient = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
+        REQUEST_OPTIONS_DEFAULT = RequestOptions.DEFAULT;
+    }
     @Test
     @Order(1)
     public void matchQuery() throws IOException{
