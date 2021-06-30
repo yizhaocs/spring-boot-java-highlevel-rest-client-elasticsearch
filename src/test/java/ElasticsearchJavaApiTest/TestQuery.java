@@ -102,6 +102,44 @@ import org.junit.jupiter.api.TestMethodOrder;
  *跑这个测试前，现在Kibana上创建books index，并且插入些数据：
  *
  curl -XDELETE http://localhost:9200/books/
+
+ curl -i \
+-d '{
+  "settings": {
+        "number_of_replicas": 1,
+        "number_of_shards": 3
+      },
+      "mappings": {
+          "properties": {
+            "id": {
+              "type": "long"
+            },
+            "title": {
+              "type": "text"
+            },
+            "language": {
+              "type": "keyword"
+            },
+            "author": {
+              "type": "keyword"
+            },
+            "price": {
+              "type": "double"
+            },
+            "publish time": {
+              "type": "date",
+              "format": "yyyy-mm-dd"
+            },
+            "description": {
+              "type": "text"
+            }
+          }
+      }
+}' \
+-H "Content-Type: application/json" \
+-X PUT http://localhost:9200/books
+
+
  curl -H "Content-Type: application/json" -XPOST "http://localhost:9200/_bulk?pretty" --data-binary @/Users/yzhao/Documents/code/spring-boot-java-highlevel-rest-client-elasticsearch/src/test/resources/books.json
 
  Kibana Query如下:
